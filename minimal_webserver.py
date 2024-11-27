@@ -45,5 +45,6 @@ class ChatApp:
         self.socketio.run(self.app, debug=debug)
 
 if __name__ == '__main__':
+    os.environ["FLASK_ENV"] = "development"
     chat_app = ChatApp()
     chat_app.run()

@@ -23,3 +23,8 @@ Test Some Models in the Context of Investments
     python minimal_webservers.py
     ```
     By default, the server will run on http://127.0.0.1:5000.
+
+2. Choose the model to use in the dropdown. Currently this are the supported models:
+    * llama3.2
+    * llama3.2-vision [selected by default]
+    
