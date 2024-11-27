@@ -15,6 +15,10 @@ Test Some Models in the Context of Investments
     ```bash
     pip install flask flask-socketio
     ```
+
+3.  Install Ollama server. Please check this page to download and install it: https://ollama.com/download
+
+
 ## Running the Application
 
 1.	Start the Backend:
