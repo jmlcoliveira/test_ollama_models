@@ -18,6 +18,7 @@
         .user-message { font-weight: bold; color: blue; }
         .bot-message { font-style: italic; color: green; }
         #dropdownMenu { position: absolute; top: 20px; right: 20px; }
+        #ollamaInput {position: absolute; top: 20px; right: 400px; max-width: 400px;}
     </style>
 </head>
 <body>
@@ -46,6 +47,11 @@
                     <path d="M15.964.686a.5.5 0 0 0-.65-.65L.767 5.855H.766l-.452.18a.5.5 0 0 0-.082.887l.41.26.001.002 4.995 3.178 3.178 4.995.002.002.26.41a.5.5 0 0 0 .886-.083zm-1.833 1.89L6.637 10.07l-.215-.338a.5.5 0 0 0-.154-.154l-.338-.215 7.494-7.494 1.178-.471z"/>
                 </svg>
             </button>
+        </div>
+
+        <div id="ollamaInput" class="input-group">
+            <label for="ollamaURL" class="input-group-text">Ollama URL</label>
+            <input type="text" class="form-control" id="ollamaURL" placeholder="ollama url" aria-label="Enter your questions..." aria-describedby="button-addon2">
         </div>
 
         <div id="dropdownMenu" class="dropdown">
@@ -141,10 +147,12 @@
         var sendButton = document.getElementById('sendBtn');
         sendButton.disabled = true;
 
+        var ollamaURL = document.getElementById('ollamaURL').value;
+
         let response;
         try{
             // Call the Ollama API with streaming enabled
-            response = await fetch('http://localhost:11434/api/chat', {
+            response = await fetch(ollamaURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -159,7 +167,7 @@
                 // Construct a more descriptive error message for network errors
             let errorMessage = error.message;
             if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                errorMessage = 'POST http://localhost:11434/api/chat net::ERR_CONNECTION_REFUSED';
+                errorMessage = 'POST ' + ollamaURL + ' net::ERR_CONNECTION_REFUSED';
             }
             console.error('Error with the Ollama API:', errorMessage);
             botMessage.textContent = 'System: An error occurred. Please try again. Error: ' + errorMessage;
@@ -308,6 +316,7 @@
 
         document.addEventListener('DOMContentLoaded', function () {
         setDropdownName('llama3.2-vision');
+        document.getElementById("ollamaURL").value = "http://localhost:11434/api/chat";
         });
 
         // Function to convert an image to Base64
