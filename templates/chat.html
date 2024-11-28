@@ -141,22 +141,32 @@
         var sendButton = document.getElementById('sendBtn');
         sendButton.disabled = true;
 
-        // Call the Ollama API with streaming enabled
-        const response = await fetch('http://localhost:11434/api/chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload),
-        });
+        let response;
+        try{
+            // Call the Ollama API with streaming enabled
+            response = await fetch('http://localhost:11434/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload),
+            });
 
-        clearInterval(dotsInterval);
-
-        if (!response.ok) {
-            console.error('Error with the Ollama API:', response.statusText);
-            botMessage.textContent = 'System: An error occurred. Please try again.';
+        } catch(error){
+            clearInterval(dotsInterval);
+            sendButton.disabled = false;
+            //console.log(response)
+                // Construct a more descriptive error message for network errors
+            let errorMessage = error.message;
+            if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                errorMessage = 'POST http://localhost:11434/api/chat net::ERR_CONNECTION_REFUSED';
+            }
+            console.error('Error with the Ollama API:', errorMessage);
+            botMessage.textContent = 'System: An error occurred. Please try again. Error: ' + errorMessage;
             return;
         }
+
+        clearInterval(dotsInterval);
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder('utf-8');
@@ -201,7 +211,7 @@
 
         // Save the bot's final response in the conversation history
         conversationHistory.push({ role: 'assistant', content: assistantMessage });
-        console.log(conversationHistory);
+        //console.log(conversationHistory);
         sendButton.disabled = false;
         }
 
