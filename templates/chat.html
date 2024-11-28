@@ -137,7 +137,7 @@
         let dots = '';
         const dotsInterval = setInterval(() => {
             dots = dots.length < 3 ? dots + '.' : ''; // Cycle through '.', '..', '...'
-            botMessage.textContent = `System: Thinking${dots}`;
+            botMessage.textContent = `Assistant: Thinking${dots}`;
         }, 500);
 
 
@@ -175,7 +175,7 @@
                 errorMessage = 'POST ' + ollamaURL + ' net::ERR_CONNECTION_REFUSED';
             }
             console.error('Error with the Ollama API:', errorMessage);
-            botMessage.textContent = 'System: An error occurred. Please try again. Error: ' + errorMessage;
+            botMessage.textContent = 'Assistant: An error occurred. Please try again. Error: ' + errorMessage;
             return;
         }
 
