@@ -30,7 +30,7 @@ class ChatApp:
     def handle_connect(self):
         self.clients[request.sid] = request.remote_addr
         print(f'Client connected: {request.sid} from {request.remote_addr}')
-        emit('response', {'response': 'Hello, I will be your investment advisor.'})
+        emit('response', {'response': 'Hello, I will be your investment advisor. I will ask you a series of questions to gather information about your financial situation, investment goals, and risk tolerance. Based on this information, I will provide you with investment advice. Let\'s get started!'})
 
     def handle_disconnect(self):
         if request.sid in self.clients:
