@@ -26,7 +26,7 @@ Test Some Models in the Context of Investments
 ## Running the Application
 
 1.	Start the Backend:
-    Run the minimal_webservers.py file:
+    Run the minimal_webserver.py file:
     ```bash
     python minimal_webservers.py
     ```
