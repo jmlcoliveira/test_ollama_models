@@ -9,10 +9,10 @@ Test Some Models in the Context of Investments
 
 1.  Clone the repository or download the files:
     ```bash
-    git clone https://github.com/your-repo/chat-app.git
+    git clone https://github.com/jmlcoliveira/test_ollama_models.git
     ```
     ```bash
-    cd chat-app
+    cd test_ollama_models
     ```
 
 2.  Install the required Python packages:
