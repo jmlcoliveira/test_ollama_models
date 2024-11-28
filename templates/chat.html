@@ -160,6 +160,11 @@
                 body: JSON.stringify(payload),
             });
 
+            // Check if the response is not ok
+            if (!response.ok) {
+                throw new Error(`POST ${ollamaURL} ${response.status} (${response.statusText})`);
+            }
+
         } catch(error){
             clearInterval(dotsInterval);
             sendButton.disabled = false;
