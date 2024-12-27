@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import os
-from flask_cors import CORS
+#from flask_cors import CORS
 
 
 class ChatApp:
@@ -9,7 +9,7 @@ class ChatApp:
         self.app = Flask(__name__)
         #CORS(self.app, resources={r"/*": {"origins": "http://98.66.178.223:5000"}})
         CORS(self.app, resources={r"/*": {"origins": "*"}})
-        self.socketio = SocketIO(self.app, cors_allowed_origins="http://98.66.178.223:5000")
+        self.socketio = SocketIO(self.app)
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.clients = {}
 
