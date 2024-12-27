@@ -172,17 +172,17 @@
 
             console.log(payload);
 
+            const proxyURL = 'http://localhost:4000/proxy';
+
             try{
                 // Call the Ollama API with streaming enabled
-                response = await fetch(ollamaURL, {
+                response = await fetch(`${proxyURL}?target=${encodeURIComponent(targetURL)}`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(payload),
-                    mode: 'cors', // Use 'cors' to let the browser handle CORS
-                    credentials: 'omit' // Adjust if cookies or credentials are needed ('omit', 'same-origin', 'include')
-                });
+                });            
 
                 // Check if the response is not ok
                 if (!response.ok) {

@@ -8,4 +8,4 @@ WORKDIR /app
 COPY . /app
 
 # Install dependencies
-RUN pip install --no-cache-dir flask flask-socketio flask-cors eventlet
+RUN pip install --no-cache-dir flask flask-socketio eventlet

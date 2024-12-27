@@ -9,3 +9,14 @@ services:
       FLASK_ENV: production
       FLASK_APP: minimal_webserver.py
     command: ["python", "minimal_webserver.py"]
+    depends_on:
+      - proxy
+
+  proxy:
+    build:
+      context: ./proxy # Proxy service directory
+    ports:
+      - "4000:5000" # Proxy accessible on port 4000 (maps container's 5000)
+    environment:
+      NODE_ENV: production
+    restart: always
