@@ -8,7 +8,7 @@ class ChatApp:
     def __init__(self):
         self.app = Flask(__name__)
         #CORS(self.app, resources={r"/*": {"origins": "http://98.66.178.223:5000"}})
-        CORS(self.app, resources={r"/*": {"origins": "*"}})
+        #CORS(self.app, resources={r"/*": {"origins": "*"}})
         self.socketio = SocketIO(self.app)
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.clients = {}
