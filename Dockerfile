@@ -10,9 +10,6 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir flask flask-socketio eventlet
 
-# Expose the port that the app runs on
-EXPOSE 5000
-
 # Set environment variables for Flask
 ENV FLASK_APP=minimal_webserver.py
 ENV FLASK_ENV=development
