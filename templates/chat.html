@@ -176,7 +176,7 @@
 
             try{
                 // Call the Ollama API with streaming enabled
-                response = await fetch(`${proxyURL}?target=${encodeURIComponent(targetURL)}`, {
+                response = await fetch(`${proxyURL}?target=${encodeURIComponent(ollamaURL)}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
