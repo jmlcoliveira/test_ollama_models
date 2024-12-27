@@ -22,7 +22,7 @@ services:
     build:
       context: ./proxy # Proxy service directory
     ports:
-      - "4000:5000" # Proxy accessible on port 4000 (maps container's 5000)
+      - "4000:4000" # Proxy accessible on port 4000 (maps container's 5000)
     environment:
       NODE_ENV: production
     restart: always

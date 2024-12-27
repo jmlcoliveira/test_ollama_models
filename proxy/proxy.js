@@ -32,7 +32,7 @@ app.post('/proxy', (req, res) => {
 });
 
 // Start the server
-const PORT = 5000;
+const PORT = 4000;
 app.listen(PORT, () => {
     console.log(`Proxy server running on port ${PORT}`);
 });
