@@ -3,11 +3,13 @@ from flask_socketio import SocketIO, emit
 import os
 from flask_cors import CORS
 
+
 class ChatApp:
     def __init__(self):
         self.app = Flask(__name__)
-        CORS(self.app, resources={r"/*": {"origins": "http://98.66.178.223:5000"}}, supports_credentials=True)
-        socketio = SocketIO(self.app, cors_allowed_origins="http://98.66.178.223:5000")
+        #CORS(self.app, resources={r"/*": {"origins": "http://98.66.178.223:5000"}})
+        CORS(self.app, resources={r"/*": {"origins": "*"}})
+        self.socketio = SocketIO(self.app, cors_allowed_origins="http://98.66.178.223:5000")
         self.dir_path = os.path.dirname(os.path.realpath(__file__))
         self.clients = {}
 
