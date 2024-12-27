@@ -42,9 +42,9 @@ class ChatApp:
         emit('response', {'response': response_message}, broadcast=True)
 
     def run(self, debug=True):
-        self.socketio.run(self.app, debug=debug)
+        #self.socketio.run(self.app, debug=debug)
+        self.socketio.run(self.app, host='0.0.0.0', port=5000, debug=debug)
 
 if __name__ == '__main__':
-    os.environ["FLASK_ENV"] = "development"
     chat_app = ChatApp()
     chat_app.run()
