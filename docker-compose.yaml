@@ -1,3 +1,7 @@
+networks:
+  app-network: # Define a custom network
+    driver: bridge
+
 services:
   chatapp:
     build: .
@@ -11,6 +15,8 @@ services:
     command: ["python", "minimal_webserver.py"]
     depends_on:
       - proxy
+    networks:
+      - app-network # Connect chatapp to the custom network
 
   proxy:
     build:
@@ -20,3 +26,5 @@ services:
     environment:
       NODE_ENV: production
     restart: always
+    networks:
+      - app-network # Connect proxy to the same custom network
