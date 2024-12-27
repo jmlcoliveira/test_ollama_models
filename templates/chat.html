@@ -172,17 +172,15 @@
 
             console.log(payload);
 
-            const proxyURL = 'http://proxy:4000/proxy';
-
             try{
                 // Call the Ollama API with streaming enabled
-                response = await fetch(`${proxyURL}?target=${encodeURIComponent(ollamaURL)}`, {
+                response = await fetch(ollamaURL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload),
-                });            
+                });
 
                 // Check if the response is not ok
                 if (!response.ok) {
