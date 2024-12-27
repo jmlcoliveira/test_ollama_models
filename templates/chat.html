@@ -180,7 +180,8 @@
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(payload),
-                    mode: 'cors'
+                    mode: 'cors', // Use 'cors' to let the browser handle CORS
+                    credentials: 'omit' // Adjust if cookies or credentials are needed ('omit', 'same-origin', 'include')
                 });
 
                 // Check if the response is not ok
