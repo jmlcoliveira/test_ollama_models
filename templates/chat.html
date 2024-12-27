@@ -11,6 +11,7 @@
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
         #chatbox { width: 100%; height: 70vh; border: 1px solid #ccc; padding: 10px; overflow-y: scroll; margin-bottom: 20px; }
+        #chatbox2 { width: 30%; height: 70vh; border: 1px solid #ccc; padding: 10px; overflow-y: scroll; margin-bottom: 20px; }
         #userInput { width: 65%; }
         #sendBtn { width: 12%; }
         #deleteBtn { width: 10%;}
@@ -19,12 +20,16 @@
         .bot-message { font-style: italic; color: green; }
         #dropdownMenu { position: absolute; top: 20px; right: 20px; }
         #ollamaInput {position: absolute; top: 20px; right: 400px; max-width: 400px;}
+        #cbUseContext {position: absolute; top: 20px; right: 1000px; max-width: 400px;}
     </style>
 </head>
 <body>
     <h1>Models Testing</h1>
     <div id="interface">
-        <div id="chatbox"></div>
+        <div style="display:flex">
+            <div id="chatbox"></div>
+            <!--div id="chatbox2"></div-->
+        </div>
 
         <div id="previewImage"></div>
         
@@ -54,6 +59,11 @@
             <input type="text" class="form-control" id="ollamaURL" placeholder="ollama url" aria-label="Enter your questions..." aria-describedby="button-addon2">
         </div>
 
+        <div id='cbUseContext'>
+            <input type="checkbox" id="useContext" name="useContext" value="useContext">
+            <label for="useContext">Use context</label>
+        </div>
+
         <div id="dropdownMenu" class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
                 Choose the model to use
@@ -80,152 +90,164 @@
         }
         ];
 
+        conversationHistory = [];
+
+        let initialRun = true;
+
         async function handle_user_input() {
-        const userInput = document.getElementById('userInput').value;
-        const chatbox = document.getElementById('chatbox');
-        const image = document.getElementById('imgupload').files[0];
+            const userInput = document.getElementById('userInput').value;
+            const chatbox = document.getElementById('chatbox');
+            const image = document.getElementById('imgupload').files[0];
 
-        if (!userInput && !image) {
-            return; // Do nothing if no input or image
-        }
+            if (!userInput && !image) {
+                return; // Do nothing if no input or image
+            }
 
-        let payload = {
-            model: document.getElementById('dropdownMenuButton').textContent.split(': ')[1] || 'llama3.2-vision',
-            messages: conversationHistory,
-            stream: true, // Enable streaming
-        };
+            if(!document.getElementById('useContext').checked && initialRun){
+                conversationHistory = [];
+                initialRun = false;
+            }
 
-        // Display user's message in chatbox
-        if (userInput != '') {
-            const userMessage = document.createElement('div');
-            userMessage.textContent = `You: ${userInput}`;
-            userMessage.className = 'user-message';
-            chatbox.appendChild(userMessage);
+            let payload = {
+                model: document.getElementById('dropdownMenuButton').textContent.split(': ')[1] || 'llama3.2-vision',
+                messages: conversationHistory,
+                stream: true, // Enable streaming
+            };
 
-            if(!image) conversationHistory.push({ role: 'user', content: userInput });
+            // Display user's message in chatbox
+            if (userInput != '') {
+                const userMessage = document.createElement('div');
+                userMessage.textContent = `You: ${userInput}`;
+                userMessage.className = 'user-message';
+                chatbox.appendChild(userMessage);
 
-            if (image) {
+                if(!image) conversationHistory.push({ role: 'user', content: userInput });
+
+                if (image) {
+                    displayImage(image);
+
+                    const base64Image = await convertImageToBase64(image);
+                    conversationHistory.push({ role: 'user', content: userInput, images: [base64Image] });
+                    const previewImage = document.getElementById('previewImage');
+                    prevImage.remove();
+                    image_remove();
+                }
+            }
+
+            if (image && userInput=='') {
                 displayImage(image);
 
-                const base64Image = await convertImageToBase64(image);
-                payload.messages.push({ role: 'user', content: userInput, images: [base64Image] });
                 const previewImage = document.getElementById('previewImage');
                 prevImage.remove();
-                image_remove();
-            }
-        }
 
-        if (image && userInput=='') {
-            displayImage(image);
-
-            const previewImage = document.getElementById('previewImage');
-            prevImage.remove();
-
-            const base64Image = await convertImageToBase64(image);
-            payload.messages.push({ role: 'user', content: "Explain this image", images: [base64Image] });
-            image_remove(); // Clear the image input
-        }
-
-        // Create a placeholder for the bot response with fading dots
-        const botMessage = document.createElement('div');
-        botMessage.className = 'bot-message';
-        botMessage.textContent = 'Assistant: Thinking';
-        chatbox.appendChild(botMessage);
-        chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
-
-        // Start the fading dots animation
-        let dots = '';
-        const dotsInterval = setInterval(() => {
-            dots = dots.length < 3 ? dots + '.' : ''; // Cycle through '.', '..', '...'
-            botMessage.textContent = `Assistant: Thinking${dots}`;
-        }, 500);
-
-
-        // Clear user input
-        document.getElementById('userInput').value = '';
-
-        var sendButton = document.getElementById('sendBtn');
-        sendButton.disabled = true;
-
-        var ollamaURL = document.getElementById('ollamaURL').value;
-
-        let response;
-        try{
-            // Call the Ollama API with streaming enabled
-            response = await fetch(ollamaURL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload),
-            });
-
-            // Check if the response is not ok
-            if (!response.ok) {
-                throw new Error(`POST ${ollamaURL} ${response.status} (${response.statusText})`);
+                const base64Image = await convertImageToBase64(image);
+                conversationHistory.push({ role: 'user', content: "Explain this image", images: [base64Image] });
+                image_remove(); // Clear the image input
             }
 
-        } catch(error){
+            // Create a placeholder for the bot response with fading dots
+            const botMessage = document.createElement('div');
+            botMessage.className = 'bot-message';
+            botMessage.textContent = 'Assistant: Thinking';
+            chatbox.appendChild(botMessage);
+            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
+
+            // Start the fading dots animation
+            let dots = '';
+            const dotsInterval = setInterval(() => {
+                dots = dots.length < 3 ? dots + '.' : ''; // Cycle through '.', '..', '...'
+                botMessage.textContent = `Assistant: Thinking${dots}`;
+            }, 500);
+
+
+            // Clear user input
+            document.getElementById('userInput').value = '';
+
+            var sendButton = document.getElementById('sendBtn');
+            sendButton.disabled = true;
+
+            var ollamaURL = document.getElementById('ollamaURL').value;
+
+            let response;
+
+            console.log(payload);
+
+            try{
+                // Call the Ollama API with streaming enabled
+                response = await fetch(ollamaURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                // Check if the response is not ok
+                if (!response.ok) {
+                    throw new Error(`POST ${ollamaURL} ${response.status} (${response.statusText})`);
+                }
+
+            } catch(error){
+                clearInterval(dotsInterval);
+                sendButton.disabled = false;
+                //console.log(response)
+                    // Construct a more descriptive error message for network errors
+                let errorMessage = error.message;
+                if (error instanceof TypeError && error.message === 'Failed to fetch') {
+                    errorMessage = 'POST ' + ollamaURL + ' net::ERR_CONNECTION_REFUSED';
+                }
+                console.error('Error with the Ollama API:', errorMessage);
+                botMessage.textContent = 'Assistant: An error occurred. Please try again. Error: ' + errorMessage;
+                return;
+            }
+
             clearInterval(dotsInterval);
-            sendButton.disabled = false;
-            //console.log(response)
-                // Construct a more descriptive error message for network errors
-            let errorMessage = error.message;
-            if (error instanceof TypeError && error.message === 'Failed to fetch') {
-                errorMessage = 'POST ' + ollamaURL + ' net::ERR_CONNECTION_REFUSED';
-            }
-            console.error('Error with the Ollama API:', errorMessage);
-            botMessage.textContent = 'Assistant: An error occurred. Please try again. Error: ' + errorMessage;
-            return;
-        }
 
-        clearInterval(dotsInterval);
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder('utf-8');
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
+            //let botMessage = document.createElement('div');
+            //botMessage.className = 'bot-message';
+            //chatbox.appendChild(botMessage);
+            botMessage.innerHTML = 'Assistant: ';
 
-        //let botMessage = document.createElement('div');
-        //botMessage.className = 'bot-message';
-        //chatbox.appendChild(botMessage);
-        botMessage.innerHTML = 'Assistant: ';
+            let isDone = false;
 
-        let isDone = false;
+            let assistantMessage = '';
 
-        let assistantMessage = '';
+            while (!isDone) {
+                const { done, value } = await reader.read();
+                if (done) break;
 
-        while (!isDone) {
-            const { done, value } = await reader.read();
-            if (done) break;
+                const chunk = decoder.decode(value, { stream: true }).trim();
 
-            const chunk = decoder.decode(value, { stream: true }).trim();
+                //console.log(chunk);
 
-            //console.log(chunk);
+                // Split the chunk in case it contains multiple JSON objects
+                const messages = chunk.split(/\r?\n/); // Split by newline for streaming
 
-            // Split the chunk in case it contains multiple JSON objects
-            const messages = chunk.split(/\r?\n/); // Split by newline for streaming
-
-            for (const message of messages) {
-                if (message) {
-                    try {
-                        const json = JSON.parse(message);
-                        if (json.message && json.message.content) {
-                            botMessage.innerHTML = renderContentWithFormatting(botMessage.innerHTML+json.message.content);
-                            assistantMessage += json.message.content;
-                            //botMessage.textContent += json.message.content; // Append content to the bot message
-                            chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
+                for (const message of messages) {
+                    if (message) {
+                        try {
+                            const json = JSON.parse(message);
+                            if (json.message && json.message.content) {
+                                botMessage.innerHTML = renderContentWithFormatting(botMessage.innerHTML+json.message.content);
+                                assistantMessage += json.message.content;
+                                //botMessage.textContent += json.message.content; // Append content to the bot message
+                                chatbox.scrollTop = chatbox.scrollHeight; // Scroll to bottom
+                            }
+                            isDone = json.done || false; // Update isDone based on the "done" field
+                        } catch (error) {
+                            console.error("Error parsing JSON chunk:", message, error);
                         }
-                        isDone = json.done || false; // Update isDone based on the "done" field
-                    } catch (error) {
-                        console.error("Error parsing JSON chunk:", message, error);
                     }
                 }
             }
-        }
 
-        // Save the bot's final response in the conversation history
-        conversationHistory.push({ role: 'assistant', content: assistantMessage });
-        //console.log(conversationHistory);
-        sendButton.disabled = false;
+            // Save the bot's final response in the conversation history
+            conversationHistory.push({ role: 'assistant', content: assistantMessage });
+            //console.log(conversationHistory);
+            sendButton.disabled = false;
         }
 
         function image_remove() {
@@ -237,6 +259,11 @@
         var image = document.getElementById('imgupload').files[0];
         if (image) {
             document.getElementById('imgupload').value = '';
+        }
+        // Remove existing preview if any
+        const existingPreview = document.getElementById('prevImage');
+        if (existingPreview) {
+            existingPreview.remove();
         }
         }
 
@@ -320,8 +347,10 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-        setDropdownName('llama3.2-vision');
+        setDropdownName('llama3.2');
         document.getElementById("ollamaURL").value = "http://localhost:11434/api/chat";
+        document.getElementById("ollamaURL").value = "http://79.72.55.160:11434/api/chat";
+        document.getElementById("useContext").checked = true;
         });
 
         // Function to convert an image to Base64
