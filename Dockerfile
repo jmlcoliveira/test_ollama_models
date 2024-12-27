@@ -9,10 +9,3 @@ COPY . /app
 
 # Install dependencies
 RUN pip install --no-cache-dir flask flask-socketio eventlet
-
-# Set environment variables for Flask
-ENV FLASK_APP=minimal_webserver.py
-ENV FLASK_ENV=production
-
-# Run the application
-CMD ["python", "minimal_webserver.py"]

@@ -6,4 +6,6 @@ services:
     volumes:
       - .:/app
     environment:
-      FLASK_ENV: development
+      FLASK_ENV: production
+      FLASK_APP: minimal_webserver.py
+    command: ["python", "minimal_webserver.py"]
